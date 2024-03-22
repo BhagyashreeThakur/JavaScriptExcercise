@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="task1.css">
+</head>
+<body>
+    <button class="btn" onclick="addEmpoyee()">New Employee</button>
+    <button class="btn" onclick="show(data)">All Employees</button>
+    <button class="btn" onclick="fullDump()">Full Dump</button>
+    <button class="btn" onclick="partial()">Partial Dump</button>
+    
+    <div id="show"></div>
+    <script>
+        const data = [
+    {empcode:'A102', name:'James', age:37, gender:'Male', department:'Finance',
+    designation:'Manager',	salary:65000},
+	{empcode:'A106', name:'Mary', age:24, gender:'Female', department:'Technology',
+    designation:'Vice-President',	salary:68000},
+	{empcode:'A122', name:'Bob', age:23, gender:'Male', department:'Marketing',
+    designation:'Manager',	 salary:51000},
+	{empcode:'A088', name:'Julia', age:33, gender:'Female', department:'Finance', designation:'VicePresident',	salary:70000},	
+	{empcode:'A055', name:'Steve', age:27, gender:'Male', department:'Technology',
+    designation:'Manager',	salary:53000},	
+	{empcode:'A208', name:'Katherine', age:29, gender:'Female', department:'Marketing',
+    designation:'Manager',	salary:61000},
+	{empcode:'A181', name:'Edwards', age:31, gender:'Male', department:'Finance',
+    designation:'Trainee',	salary:49000},				
+	{empcode:'A029', name:'Margaret', age:32, gender:'Female', department:'Technology',
+    designation:'President',	salary:53000},
+	{empcode:'A029', name:'Bill', age:27, gender:'Male', department:'Operations',
+    designation:'Manager',	salary:58000}
+    ];
+
+ const ddOption1 = ['Finance','Technology','Marketing','Operations'];
+ const ddOption2 = ['Manager','Trainee','President','Vice-President'];
+ const radioOptions = ['Male','Female'];
+    function show(d){
+        let str = showTable(d);
+        document.getElementById('show').innerHTML = str;
+    }
+
+    function showTable(data){
+       let arr1 = data.map(function(n){
+        let str = '<tr>';
+            str += '<td class="td1">'+n.empcode+'</td>';
+            str += '<td class="td1">'+n.name+'</td>';
+            str += '<td class="td1">'+n.age+'</td>';
+            str += '<td class="td1">'+n.gender+'</td>';
+            str += '<td class="td1">'+n.department+'</td>';
+            str += '<td class="td1">'+n.designation+'</td>';
+            str += '<td class="td1">'+n.salary+'</td>';
+            str += '<td class="td1"><button class="btn" onclick=edit("'+n.empcode+'")>Edit</button></td>';
+            str += '</tr>';
+            return str;
+        });
+        let str = 'Filter Employees by ';
+            str += makeWeightDD('depart',ddOption1, 'Select Department','');
+            str += makeWeightDD('desig',ddOption2, 'Select Designation','');
+            str += '<button onclick=\'filterArr()\'>Filter</button>';
+            let header = '<thead>';
+            header += '<th onclick=\'sort(0)\'>Emp Code</th>';
+            header += '<th onclick=\'sort(1)\'>Name</th>';
+            header += '<th onclick=\'sort(2)\'>Age</th>';
+            header += '<th onclick=\'sort(3)\'>Gender</th>';
+            header += '<th onclick=\'sort(4)\'>Department</th>';
+            header += '<th onclick=\'sort(5)\'>Designation</th>';
+            header += '<th onclick=\'sort(6)\'>Salary</th>';
+            header += '<th></th>';
+            header += '</thead>';
+            let table = '<table>'+str+header+arr1.join('')+'</table>';
+            return table;
+    }
+
+    function sort(n){
+    if(n == 0)
+        data.sort(codeAsc);
+    else if(n == 1)
+        data.sort(nameAsc);
+    else if(n == 2)
+        data.sort(ageAsc);
+    else if(n == 3)
+        data.sort(genderAsc);
+    else if(n == 4)
+        data.sort(departmentAsc);
+    else if(n == 5)
+        data.sort(designationAsc);
+    else
+        data.sort(salAsc);        
+    show(data);
+    }
+
+    function codeAsc(c1,c2){
+        return -1*c1.empcode.localeCompare(c2.empcode);
+    }
+    function nameAsc(name1, name2){
+        return name1.name.localeCompare(name2.name);
+    }
+    function ageAsc(a1,a2){
+        return a1.age - a2.age; 
+    }
+    function departmentAsc(a1,a2){
+        return a1.department.localeCompare(a2.department); 
+    }
+    function designationAsc(a1,a2){
+        return a1.designation.localeCompare(a2.designation);
+    }
+    function genderAsc(a1,a2){
+        return a1.gender.localeCompare(a2.gender);
+    }
+    function salAsc(a1,a2){
+        return a1.salary - a2.salary;
+    }
+
+    function fullDump(){
+       let arr1 = data.map(function(n){
+            let str = n.empcode+'::';
+            str += n.name+'::';
+            str += n.age+'::';
+            str += n.gender+'::';
+            str += n.department+'::';
+            str += n.designation+'::';
+            str += n.salary+'<br>';
+            return str;
+        });
+        let jsn ='<div class="dump">'+JSON.stringify(arr1)+'</div>';
+        document.getElementById('show').innerHTML = jsn;
+    }
+
+    function partial(){
+        let arr1 = data.map(function(n){
+            let str ='Code='+n.empcode;
+            str +='Name='+n.name;
+            str +='Age'+n.age;
+            return str+'<br>';
+        });
+        let jsn ='<div class="dump">'+JSON.stringify(arr1)+'</div>';
+        document.getElementById('show').innerHTML = jsn;
+    }
+
+    function addEmpoyee(){
+    let str = '<h1>Add Employee</h1>';
+    str += 'Employee Code : <input type="text" id="code"><br>';
+    str += 'Name : <input type="text" id="name"><br>';
+    str += 'Age : <input type="text" id="age"><br>';
+    str += 'Gender : Male<input type="radio" id="g1" value="Male" name="gender">';
+    str += 'Female<input type="radio" id="g1" value="Female" name="gender"><br>';
+    str += makeWeightDD('depart',ddOption1, 'Select Department','')+'<br>';
+    str += makeWeightDD('desig',ddOption2, 'Select Designation','')+'<br>';
+    str += 'Salary : <input type="text" id="sal"><br>';
+    str += '<button class="btn" onclick=\'addData()\'>Add New Employee</button>';
+    document.getElementById('show').innerHTML=str;
+    }
+
+    
+function makeWeightDD(id,arr,first,selVal){
+    const arr2 = arr.map(function(opt){
+          if(opt == selVal)
+              return '<option selected>'+opt+'</option>';
+          else
+              return '<option>'+opt+'</option>';
+      });
+      let header = '<option disabled>'+first+'</option>';
+      if(selVal == '')
+          header = '<option disabled selected>'+first+'</option>';
+      let s1 = '<select id=\''+id+'\'>'+header+arr2.join('')+'</select>';
+      return s1;
+  }
+
+  
+  function addData(){
+    let st = {};
+    st.empcode = document.getElementById('code').value;
+    st.name = document.getElementById('name').value;
+    st.age = document.getElementById('age').value;
+    let ele = document.getElementsByName('gender');
+    for(i = 0; i < ele.length; i++) {
+        if(ele[i].checked)
+        st.gender = ele[i].value;
+    } 
+    st.department = document.getElementById('depart').value;
+    st.designation = document.getElementById('desig').value;
+    st.salary = document.getElementById('sal').value;
+    
+    let existEmp = data.find(function(p){
+        return p.empcode == st.empcode;
+    });
+    if (existEmp) {
+        alert("Employee code already exists. Enter a diffrent employee code.");
+        return false;
+    } else if(st.empcode==''){
+        alert("Enter Employee code");
+        return false;
+    } else if(st.name == ''){
+        alert("Enter the name");
+        return false;
+    } else if(st.age == ''){
+        alert("Enter the age");
+        return false;
+    } else if(st.gender == undefined){
+        console.log(st.gender);
+        alert("Please Select Your Gender");
+        return false;
+    } else if(st.department == "Select Department"){
+        alert("Please Select Your Department");
+        return false;
+    } else if(st.designation == "Select Designation"){
+        alert("Please Select Your Designation");
+        return false;
+    } else if(st.salary == ''){
+        alert("Please Enter Salary");
+        return false;
+    }
+    data.push(st);
+    show(data);  
+  }
+
+  function filterArr(){
+       let v1 = document.getElementById('depart').value;
+        let v2 = document.getElementById('desig').value;
+        let arr1 = data.filter(function(n){
+            if(v1=='Select Department'){
+                return n.designation == v2;
+            } else if(v2=='Select Designation'){
+                return n.department == v1;
+            }
+            return n.department == v1 && n.designation == v2;
+        });
+        if(v1=="Select Department" && v2=="Select Designation"){
+            show(data);
+            return;
+        }
+        show(arr1);      
+    }
+    function makeRadios(name,arr,selectedVal){
+      const arr1 = arr.map(function(item){
+        let checkedStr = '';
+         if(item == selectedVal){
+            checkedStr = 'checked';
+         }
+         let s1 = '<input type="radio" name="'+name+'" value="'+item+'" '
+         +checkedStr+'>'+item;
+         return s1;
+         });
+            return arr1.join('');
+    }
+
+function edit(code){
+    let emp = data.find(function(p1){
+       return p1.empcode == code;
+    });
+    let str = 'Emp Code : <input type="text" id="code" readOnly value=\''+emp.empcode+'\'><br>';
+    str += 'Name : <input type="text" id="name" value=\''+emp.name+'\'><br>';
+    str += 'Age : <input type="text" id="age" value=\''+emp.age+'\'><br>';
+    str += makeRadios("gender",radioOptions,emp.gender)+'<br>';
+    str += makeWeightDD('depart',ddOption1, emp.department,'')+'<br>';
+    str += makeWeightDD('desig',ddOption2, emp.designation,'')+'<br>';
+    str += 'Salary : <input type="text" id="sal" value=\''+emp.salary+'\'><br>';
+    str += '<button onclick=\'edit2()\'>Edit</button>';
+    let div = document.getElementById('show');
+    div.innerHTML = str;
+}
+
+
+function edit2(){
+ let code = document.getElementById('code').value;
+  let p = data.find(function(p1){
+     return p1.empcode == code;
+    });
+    p.name = document.getElementById('name').value;
+    p.age = document.getElementById('age').value;
+    let ele = document.getElementsByName('gender');
+    for(i = 0; i < ele.length; i++) {
+        if(ele[i].checked)
+        p.gender = ele[i].value;
+    }
+    p.salary = document.getElementById('sal').value;
+    p.department = document.getElementById('depart').value;
+    p.designation = document.getElementById('desig').value;
+    if(p.name == ''){
+        alert("Enter the name");
+        return false;
+    } else if(p.age == ''){
+        alert("Enter the age");
+        return false;
+    } else if(p.gender == undefined){
+        console.log(st.gender);
+        alert("Please Select Your Gender");
+        return false;
+    } else if(p.department == "Select Department"){
+        alert("Please Select Your Department");
+        return false;
+    } else if(p.designation == "Select Designation"){
+        alert("Please Select Your Designation");
+        return false;
+    } else if(p.salary == ''){
+        alert("Please Enter Salary");
+        return false;
+    }
+    show(data);
+    alert("The Employee details have been Update..");   
+}
+    </script>
+</body>
+</html>

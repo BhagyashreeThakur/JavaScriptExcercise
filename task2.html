@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="task2.css">
+</head>
+<body>
+    <h1>Store Management System</h1>
+    <button class="btn" onclick="show()">Products</button>
+    <button class="btn" onclick="enterOrder()">Enter an Order</button>
+    <button class="btn" onclick="allOrders()">All Orders</button>
+    <div id="show"></div>
+<script>
+    const products = [
+        {"prodcode":"PEP122","prodname":"Pepsi","price":12,"category":"Food","offer":"10%"},
+		{"prodcode":"COK238","prodname":"Coke","price":15,"category":"Food","offer":"15%"},
+		{"prodcode":"MIR411","prodname":"Mirinda","price":30,"category":"Food","offer":"20%"},
+		{"prodcode":"RB0277","prodname":"Red Bull","price":80,"category":"Food","offer":"None"},
+		{"prodcode":"LUX831","prodname":"Lux","price":10,"category":"Soap","offer":"15%"},
+		{"prodcode":"DOV672","prodname":"Dove","price":25,"category":"Soap","offer":"20%"},
+		{"prodcode":"DET810","prodname":"Dettol","price":15,"category":"Soap","offer":"None"},
+		{"prodcode":"PAN590","prodname":"Pantene","price":60,"category":"Shampoo","offer":"None"},
+		{"prodcode":"SUN677","prodname":"Sunsilk","price":48,"category":"Shampoo","offer":"15%"},
+		{"prodcode":"GAR004","prodname":"Garnier","price":75,"category":"Shampoo","offer":"10%"}
+];
+const orders = [
+{"custname":"Jack Smith","mobile":"425361434","location":"Sector 14","slot":"12PM-2PM","value":72.6,"items":
+[{"prodcode":"PEP122","quantity":2},
+{"prodcode":"COK238","quantity":4}]},
+{"custname":"Mary Gomes","mobile":"723476123","location":"Sector 22","slot":"4PM-6PM","value":130.60,"items":
+[{"prodcode":"SUN677","quantity":2},
+{"prodcode":"LUX831","quantity":4},
+{"prodcode":"DET810","quantity":1}]},
+{"custname":"Tim May","mobile":"835099614","location":"Pioneer Chowk","slot":"Before10AM","value":705,"items":
+[{"prodcode":"GAR004","quantity":6},
+{"prodcode":"RB0277","quantity":3},
+{"prodcode":"MIR411","quantity":2}]}
+];
+
+const slots = ['Before 10AM','10AM-12PM','12PM-2PM','2PM-4PM','4PM-6PM','After 6PM'];
+const locations = ['Sector 14A', 'Sector 15B','Sector 22', 'Pioneer Chowk'];
+const productCodeArr = ['PEP122','COK238','MIR411','RB0277','LUX831','DOV672','PAN590','SUN677','GAR004'];
+const quanties = [1,2,3,4,5,6,7,8,9];
+const newOrder = [];
+
+function show(){
+    let html = showProductTable();
+    document.getElementById('show').innerHTML = html;
+}
+function showProductTable(){
+    const arr = products.map(function(n){
+        let str = '<tr class="tr1">';
+            str += '<td class="td1">'+n.prodcode+'</td>';
+            str += '<td class="td1">'+n.prodname+'</td>';
+            str += '<td class="td1">'+n.price+'</td>';
+            str += '<td class="td1">'+n.category+'</td>';
+            str += '<td class="td1">'+n.offer+'</td>';
+            str += '</tr>';
+            return str;
+    });
+    let header = '<thead>';
+        header += '<th class="th1">Code</th>';
+        header += '<th class="th1">Name</th>';
+        header += '<th class="th1">Price</th>';
+        header += '<th class="th1">Category</th>';
+        header += '<th class="th1">Discount</th>';
+        header += '</thead>';
+    let table = '<table  class="table1">'+header+arr.join('')+'</table>';
+    return table;
+}
+
+function enterOrder(){
+    let str = '<tr>';
+        str += '<td>Customer Name</td>';
+        str += '<td><input type="text" id="cName"></td>';
+        str += '</tr>';
+        str += '<tr>';
+        str += '<td>Mobile Number</td>';
+        str += '<td><input type="text" id="mid"></td>';
+        str += '</tr>';
+        str += '<tr>';
+        str += '<td>Location</td>';
+        str += '<td>'+makeDD('lid',locations,'Choose Location','')+'</td>';
+        str += '</tr>';
+        str += '<tr>';
+        str += '<td>Delivery Slot</td>';
+        str += '<td>'+makeDD('sid',slots,'Choose Slot','')+'</td>';
+        str += '</tr>';
+        str += '<tr>';
+        str += '<td>Add to Order</td>';    
+        str += '<td>'+makeDD('pid',productCodeArr,'Select Product','')+makeDD('qid',quanties,'Select Quantity','')+
+        '<button class="btn" onclick=\'addOrder()\'>Add to Order</button></td>';
+        str += '</tr>';
+        str += '<tr>';
+        str += '<td></td>';
+        str += '<td><button class="btn" onclick=\'completeOrder()\'>Order Complete</button><button onclick=\'cancelOrder()\' class="btn">Cancel Order</button></td>';
+        str += '</tr>';
+        let header = '<tr>';
+        header += '<th class="th2">Code</th>';
+        header += '<th class="th2">Name</th>';
+        header += '<th class="th2">Price</th>';
+        header += '<th class="th2">Quantity</th>';
+        header += '<th class="th2">Discount</th>';
+        header += '<th class="th2">Net Amount</th>';
+        header += '<th class="th2"></th>';
+        header += '</tr>';
+        let arr2 = newOrder.map(function(itm){
+            let str = '<tr>';
+                str += '<td class="td2">'+itm.prodcode+'</td>';
+                str += '<td class="td2">'+itm.prodname+'</td>';
+                str += '<td class="td2">'+itm.price+'</td>';
+                str += '<td class="td2">'+itm.quantity+'</td>';
+                str += '<td class="td2">'+itm.discount+'</td>';
+                str += '<td class="td2">'+itm.amount+'</td>';
+                str += '<td class="td2"><button class="btn" onclick=remove("'+itm.prodcode+'")>Remove</button></td>'; 
+                return str;
+        });
+        let table = '<table>'+str+header+arr2+'</table>';
+        document.getElementById('show').innerHTML = table;
+}
+
+function makeDD(id,arr,first,selVal){
+    const arr2 = arr.map(function(opt){
+          if(opt == selVal)
+              return '<option selected>'+opt+'</option>';
+          else
+              return '<option>'+opt+'</option>';
+      });
+      let header = '<option disabled>'+first+'</option>';
+      if(selVal == '')
+          header = '<option disabled selected>'+first+'</option>';
+      let s1 = '<select id=\''+id+'\'>'+header+arr2.join('')+'</select>';
+      return s1;
+  }
+
+  function addOrder(){
+    let p = document.getElementById('pid').value;
+    let qty = document.getElementById('qid').value;
+    if(p === 'Select Product'){
+        alert("Please Select Product Code.");
+        return false;
+    } else if(qty === 'Select Quantity'){
+        alert("Please Select Quantity.")
+        return false;
+    }
+    let fed = newOrder.find(function(n){
+        return n.prodcode == p;
+    });
+    if(fed){ 
+        fed.quantity = (+fed.quantity) + (+qty);
+        console.log(fed.discount);
+        let netAmount = fed.price * fed.quantity;
+            if(fed.discount !== 'None'){
+            let disPer = parseInt(fed.discount);
+            let totalDiscount = 0;
+            totalDiscount += (disPer/100) * fed.price * fed.quantity;
+            netAmount = netAmount - totalDiscount;
+            }
+        fed.amount = netAmount; 
+    } else{
+        let p1 = products.find(function(e){
+            return e.prodcode == p;
+        });
+        let item = {prodcode:p1.prodcode, prodname:p1.prodname, price:p1.price, quantity:0, discount:p1.offer, amount:0};
+        if(p1.prodcode == p){
+            item.quantity = qty;
+            let netAmount = p1.price * item.quantity;
+            if(p1.offer !== 'None'){
+            let disPer = parseInt(p1.offer);
+            let totalDiscount = 0;
+            totalDiscount += (disPer/100) * p1.price * item.quantity;
+            netAmount = netAmount - totalDiscount;
+            }
+            item.amount = netAmount;
+        }
+        newOrder.push(item);
+    }
+    enterOrder();
+  }
+
+  function remove(p){
+    let index = newOrder.findIndex(function(e){
+        return e.prodcode == p;
+    });
+    if(index >= 0)
+        newOrder.splice(index,1);
+    enterOrder();
+}
+
+function allOrders() {
+  let html = "<table>";
+  orders.map(function (order) {
+    html += "<tr>";
+    html += "<td>Customer Name : " + order.custname + ",</td>";
+    html += "<td>Mobile : " + order.mobile + ",</td>";
+    html += "<td>Location : " + order.location + ",</td>";
+    html += "<td>Delivery Slot : " + order.slot + ",</td>";
+    html += "<td>Order Value : " + order.value + ",</td>";
+    let sum = 0;
+    for(let i=0; i<order.items.length; i++){
+     sum += parseInt(order.items[i].quantity);
+    }
+    html += "<td>Number of items : " +sum+ "</td>";
+    html += "<table>";
+    html += "<tr>";
+    html += "<th class='th2'>Code</th>";
+    html+= "<th class='th2'>Name</th>";
+    html += "<th class='th2'>Price</th>";
+    html += "<th class='th2'>Quantity</th>";
+    html += "<th class='th2'>Discount</th>";
+    html += "<th class='th2'>Net Amount</th>";
+    html += "</tr>";
+    order.items.map(function (item) {
+      let product = products.find(function (p) {
+        return p.prodcode === item.prodcode;
+      });
+      let netAmount = product.price * item.quantity;
+            if(product.offer !== 'None'){
+            let disPer = parseInt(product.offer);
+            let totalDiscount = 0;
+            totalDiscount += (disPer/100) * product.price * item.quantity;
+            netAmount = netAmount - totalDiscount;
+            }
+            item.amount = netAmount;
+      html += '<tr>';
+      html += '<td class="td2">' + product.prodcode + '</td>';
+      html += '<td class="td2">' + product.prodname + '</td>';
+      html += '<td class="td2">' + product.price + '</td>';
+      html += '<td class="td2">' + item.quantity + '</td>';
+      html += '<td class="td2">' + product.offer+ '</td>';
+      html += '<td class="td2">' + item.amount+ '</td>';
+      html += '</tr>';
+    });
+    html += "</table>";
+    html += "</tr>";
+  });
+  html += "</table>";
+  document.getElementById("show").innerHTML = html;
+}
+
+function completeOrder(){
+    let st = {};
+    st.custname = document.getElementById('cName').value;
+    st.mobile = document.getElementById('mid').value;
+    st.location = document.getElementById('lid').value;
+    st.slot = document.getElementById('sid').value;
+    st.value = 0;
+    let arr3 = newOrder.map(function(s){
+        st.value += s.amount;
+        let str ={prodcode:s.prodcode, quantity:s.quantity};
+        return str;
+    });
+     st.items = arr3;
+    console.log(st);
+    if(st.custname == ''){
+        alert('Please Enter Name');
+        return false;
+    }else if(st.custname.length < 5){
+        alert('Please Enter greater than or equal 5 characters');
+        return false;
+    } else if(st.mobile == ''){
+        alert("Enter the Mobile Number");
+        return false;
+    } else if (isNaN(st.mobile)) {
+    alert("Mobile number must contain only digits.");
+    return false;
+    } else if (typeof st.mobile !== 'string' || st.mobile.length !== 10) {
+        alert("Mobile number must be a 10-digit number.");
+        return false;
+    } else if(st.location == 'Choose Location'){
+        alert("Select Locations.");
+        return false;
+    } else if(st.slot == 'Choose Slot'){
+        alert("Select Slot.");
+        return false;
+    }
+orders.unshift(st);
+allOrders();
+newOrder.splice(0,newOrder.length);
+}
+
+function cancelOrder(){
+    document.getElementById('cName').value = "";
+    document.getElementById('mid').value = "";
+    document.getElementById('lid').value = "Choose Location";
+    document.getElementById('sid').value = "Choose Slot";
+        newOrder.splice(0,newOrder.length);
+    enterOrder();
+}
+
+</script>
+</body>
+</html>
